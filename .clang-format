@@ -1,0 +1,61 @@
+# Approximates the style described in CONTRIBUTING.md (kernel-like, with
+# attached braces). clang-format cannot express every rule there, notably the
+# extra indent for continuation lines that open a block, so treat its output
+# as a starting point and review it.
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# Indentation: a single tab, tab width of 4
+UseTab: ForContinuationAndIndentation
+TabWidth: 4
+IndentWidth: 4
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentPPDirectives: None
+AccessModifierOffset: -4
+
+# Line length: aim for 80 columns (up to 100 is acceptable when it helps)
+ColumnLimit: 80
+
+# Line breaking: continuation lines get one extra tab, no alignment to brackets
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+AlignEscapedNewlines: DontAlign
+AlignTrailingComments: false
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveMacros: None
+BinPackArguments: true
+BinPackParameters: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: false
+AlwaysBreakAfterReturnType: None
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+# Brackets: always on the same line, including for functions
+BreakBeforeBraces: Attach
+InsertBraces: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+
+# Misc
+PointerAlignment: Right
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+Cpp11BracedListStyle: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+ReflowComments: false
+
+# Include order is meaningful in places; don't reorder
+SortIncludes: Never
+IncludeBlocks: Preserve
+...
