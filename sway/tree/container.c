@@ -140,6 +140,10 @@ struct sway_container *container_create(struct sway_view *view) {
 	c->animation_state.current_content_height = -1;
 	c->animation_state.seat_is_resizing = false;
 	c->animation_state.seat_is_moving_float = false;
+	// Start undimmed: new windows usually take focus right away
+	c->dim_animation_state.animation = init_animation(c);
+	c->dim_animation_state.from = 0.0f;
+	c->dim_animation_state.to = 0.0f;
 
 	wl_signal_init(&c->events.destroy);
 	wl_signal_emit_mutable(&root->events.new_node, &c->node);
@@ -238,6 +242,23 @@ static void scene_shadow_set_color(struct wlr_scene_shadow *shadow,
 	wlr_scene_shadow_set_color(shadow, premultiplied);
 }
 
+static void update_dim_rect(struct sway_container *con) {
+	float *color = config->dim_inactive_colors.unfocused;
+	if (con->view && view_is_urgent(con->view)) {
+		color = config->dim_inactive_colors.urgent;
+	}
+	float dim = get_animated_value(con->dim_animation_state.from,
+		con->dim_animation_state.to, &con->dim_animation_state.animation);
+	scene_rect_set_color(con->dim_rect, color, MIN(1, MAX(0, dim)));
+}
+
+static void dim_animation_update(void *data) {
+	struct sway_container *con = data;
+	if (con->dim_rect) {
+		update_dim_rect(con);
+	}
+}
+
 void container_update(struct sway_container *con) {
 	struct border_colors *colors = container_get_current_colors(con);
 	list_t *siblings = NULL;
@@ -298,16 +319,20 @@ void container_update(struct sway_container *con) {
 	}
 
 	if (con->dim_rect) {
-		float *color = config->dim_inactive_colors.unfocused;
-
-		// Urgency
-		if (con->view && view_is_urgent(con->view)) {
-			color = config->dim_inactive_colors.urgent;
+		bool focused = con->current.focused ||
+			container_is_current_parent_focused(con);
+		float target = focused ? 0.0f : con->dim;
+		if (target != con->dim_animation_state.to) {
+			// Start from wherever a running fade currently is
+			con->dim_animation_state.from = get_animated_value(
+				con->dim_animation_state.from, con->dim_animation_state.to,
+				&con->dim_animation_state.animation);
+			con->dim_animation_state.to = target;
+			add_animation(&con->dim_animation_state.animation,
+				dim_animation_update, dim_animation_update);
+			start_animations();
 		}
-		// Focused
-		bool focused = con->current.focused || container_is_current_parent_focused(con);
-
-		scene_rect_set_color(con->dim_rect, color, focused ? 0.0 : con->dim);
+		update_dim_rect(con);
 	}
 }
 
@@ -570,6 +595,9 @@ void container_destroy(struct sway_container *con) {
 
 	if (con->animation_state.animation.initialized) {
 		finish_animation(&con->animation_state.animation);
+	}
+	if (con->dim_animation_state.animation.initialized) {
+		finish_animation(&con->dim_animation_state.animation);
 	}
 
 	free(con->title);

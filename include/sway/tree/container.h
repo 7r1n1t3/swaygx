@@ -175,6 +175,13 @@ struct sway_container {
 		bool seat_is_moving_float;
 	} animation_state;
 
+	// Fades dim_rect between the focused (0) and unfocused (dim) values
+	struct {
+		struct animation animation;
+		float from;
+		float to;
+	} dim_animation_state;
+
 	list_t *marks; // char *
 
 	struct {
