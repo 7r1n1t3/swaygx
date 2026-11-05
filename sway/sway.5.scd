@@ -420,7 +420,8 @@ runtime.
 
 animation_duration_ms <value>
 	Determines the duration of the animation applied to opening and closing
-	windows, between 0 (no animation) and 5000 (5 seconds).
+	windows, and to windows fading into and out of the dimmed state when focus
+	changes, between 0 (no animation) and 5000 (5 seconds).
 
 *assign* <criteria> [→] [workspace] [number] <workspace>
 	Assigns windows matching _criteria_ (see *CRITERIA* for details) to
@@ -711,7 +712,8 @@ The default colors are:
 
 *default_dim_inactive* <value>
 	Adjusts the dimming of inactive windows between 0.0 (no dimming) and 1.0
-	(fully dimmed) while 0.0 is the default value.
+	(fully dimmed) while 0.0 is the default value. Windows fade between the
+	dimmed and undimmed state over *animation_duration_ms*.
 
 *dim_inactive* <value>
 	This can only be used with a *for_window* rule.
